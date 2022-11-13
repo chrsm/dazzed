@@ -1,0 +1,99 @@
+/**
+ * NOTE(@chrsm): I did _NOT_ write this script.
+ * I simply formatted it cleanly, as Daz's forum format for code blocks is 
+ * completely broken, resulting in a several thousand character line comment.
+ *
+ * Everything else is completely untouched.
+ *
+ * If you're new to Daz or haven't used Daz scripting, you can either:
+ *  - save this file as `recenter.dsa` and copy it to `<Your Daz3d Library>/Scripts/recenter.dsa`
+ *  - use the built-in script "IDE" (`Window > Tabs > Script IDE`), copy/paste and save it
+ *
+ * All rights belong to the following Daz3d forum members:
+ *   - "chris-2599934" (original author)
+ *   - "Omniflux" (modified)
+ *   - "function" (modified, this is the version you see here)
+ **/
+
+// DAZ Studio version 4.12.1.118 filetype DAZ Script
+// Origin by OMNI at https://www.daz3d.com/forums/discussion/284301/world-recenter-script-feedback-sought
+// modified by function to fix camera group problem
+/* Use it: select the object that want to put as world center, run this script, done, and can undo.*/
+(function () {
+  function repositionNode(oNode) {
+    if (oNode.isRootNode()) {
+      // Unlock locked controls before repositioning			
+      var aFunctions = [
+      	oNode.getXPosControl, oNode.getYPosControl, oNodek.getZPosControl
+      ];
+      var bLockTracker = [false, false, false];
+      aFunctions.forEach(function (
+        control, i) {
+        if (control().isLocked()) control().lock(bLockTracker[i]++)
+      });
+      // Reposition node			
+      oNode.setWSPos(oNode.getWSPos().subtract(vecOffset));
+      // Restore locked controls			
+      aFunctions.forEach(function (control, i) {
+        if (bLockTracker[i]) control().lock(true)
+      });
+    }
+  }
+  if (Scene.getNumSelectedNodes() != 1) MessageBox.warning(
+    "Please select a single item in the scene before invoking this script",
+    "Selection Error", qsTr("&OK"), "");
+  else {
+    // Get selected nodes offset from world origin		
+    var vecOffset = Scene.getSelectedNode(0).getWSPos();
+    beginUndo();
+    Scene.getNodeList().forEach(repositionNode);
+    /**********below script is for CameraGroup_to_WorldCenter*************/
+    // DAZ Studio version 4.16.0.3 filetype DAZ Script
+    /* This script is to reset all Camera Groups' coordinate to world center 0,0,0 in a scene, to avoid camera orbit problem. */
+    // get all scene nodes list
+    var aAllNodes = Scene.getNodeList();
+    var nAllNodes = aAllNodes.length;
+    // Iterate over all scene nodes
+    for (var i1 = 0; i1 < nAllNodes; i1 += 1) {
+      // Get the 'current' node    
+      var oNode = aAllNodes[i1];
+      // set its parent node    
+      var oParent = oNode.getNodeParent();
+      // check if current node is a Camera    
+      if (oNode.isViewCamera) {
+        // check if node has parent        
+        if (oParent) {
+          // Get all of the child nodes of the camera parent            
+          var aNodes = oParent.getNodeChildren(true);
+          // Get the number of nodes            
+          var nNodes = aNodes.length;
+          // Iterate over all cameras            
+          for (var i = 0; i < nNodes; i += 1) {
+            // Get the 'current' camera                
+            var oCamera = aNodes[i];
+            /* get each Camera's World position & rotation, clear its Local position & rotation,	
+            delete all its keyframes, and set its Local p & r to its World p & r. */
+            var p = oCamera.getWSPos();
+            var r = oCamera.getWSRot();
+            oCamera.getXRotControl().deleteAllKeys();
+            oCamera.getYRotControl().deleteAllKeys();
+            oCamera.getZRotControl().deleteAllKeys();
+            oCamera.getXPosControl().deleteAllKeys();
+            oCamera.getYPosControl().deleteAllKeys();
+            oCamera.getZPosControl().deleteAllKeys();
+            oCamera.setLocalPos(p);
+            oCamera.setLocalRot(r);
+          }
+          // finally clear Camera Group's world position and rotation and delete keyframes.            
+          oParent.getXRotControl().deleteAllKeys();
+          oParent.getYRotControl().deleteAllKeys();
+          oParent.getZRotControl().deleteAllKeys();
+          oParent.getXPosControl().deleteAllKeys();
+          oParent.getYPosControl().deleteAllKeys();
+          oParent.getZPosControl().deleteAllKeys();
+        }
+      }
+    } /**********end of script for CameraGroup_to_WorldCenter**************/
+    acceptUndo("Reposition to world center");
+  }
+})();
