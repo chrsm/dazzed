@@ -24,7 +24,7 @@
     if (oNode.isRootNode()) {
       // Unlock locked controls before repositioning			
       var aFunctions = [
-      	oNode.getXPosControl, oNode.getYPosControl, oNodek.getZPosControl
+      	oNode.getXPosControl, oNode.getYPosControl, oNode.getZPosControl
       ];
       var bLockTracker = [false, false, false];
       aFunctions.forEach(function (
