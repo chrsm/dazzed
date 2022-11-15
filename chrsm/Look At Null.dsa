@@ -1,0 +1,91 @@
+/*
+ * Look At Null.dsa
+ *
+ * Given a set of selected objects that contain 'eyes', this script will create
+ * a new `null` and make their eyes look at it. You can then move this null point
+ * around and have their eyes follow it.
+ *
+ * By default, this null node is created where the active viewport is.
+ */
+
+var _regexp = /_lookatnull_(\d+)/g,
+	_scr = qsTr('Look At Null!')
+	;
+
+function _newNULL() {
+  /* we need to know what node we are */
+  var n = 0,
+  	  node = DzNode()
+  	  ;
+	  
+  Scene.getNodeList().forEach(function(node) {
+  	var m = _regexp(node.getLabel());
+  	if (!m) {
+  		return;
+  	}
+  	
+    n = parseInt(m[1]) > n ? parseInt(m[1]) : n;
+  });
+
+  var name = '_lookatnull_' + (n + 1),
+      pos  = _getPosition()
+      ;
+  node.setLabel(name);
+  node.setName(name);
+  node.setWSPos(pos);
+  
+  Scene.addNode(node);
+  
+  return node;
+}
+
+function _getPosition() {
+  var vmgr = MainWindow.getViewportMgr();
+  var vp = vmgr.getActiveViewport().get3DViewport();
+  var vc = vp.getCamera();
+
+  return vc.getWSPos();
+}
+
+function _lookatnull_exec() {
+  var nodes = Scene.getSelectedNodeList();
+  if (!nodes.length) {
+    MessageBox.information(qsTr('Select at least one nodes with "Left Eye" and "Right Eye" children'), _scr, qsTr('OK'));
+    return;
+  }
+  
+  var _nullnode = _newNULL();
+  for (i = 0; i < nodes.length; i++) {
+    var p = nodes[i];
+    if (!p.isRootNode()) {
+      while (!p.isRootNode()) {
+        p = p.getNodeParent();
+      }
+    }
+
+    // look for eyes
+    var leye = p.findNodeChildByLabel('Left Eye', true),
+        reye = p.findNodeChildByLabel('Right Eye', true)
+        ;
+
+    if (!leye || !reye) {
+      MessageBox.information(qsTr('Node ' + i + ' left and right eyes not found'), _scr, qsTr('OK'));
+      continue;
+    }
+
+    leye.findPropertyByLabel('Point At').setNode(_nullnode);
+    reye.findPropertyByLabel('Point At').setNode(_nullnode);
+  }
+}
+
+(function() {
+  try {
+    beginUndo();
+    _lookatnull_exec();
+  } catch (err) {
+	print("err",err);
+    cancelUndo();
+  } finally {
+    acceptUndo(qsTr('Look At Null!'));
+  }
+})();

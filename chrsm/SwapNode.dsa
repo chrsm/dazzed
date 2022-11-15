@@ -1,0 +1,34 @@
+// DAZ Studio version 4.21.0.5 filetype DAZ Script
+
+/*
+ * SwapNode.dsa
+ *
+ * Takes node A and node B and swaps their positions.
+ */
+
+function _swap(a, b) {
+  var posA = a.getWSPos();
+  //DzVec3([ a.getWSPos().x, a.getWSPos().y, b.getWSPos().z ]);
+  var posB = b.getWSPos();
+  
+  a.setWSPos(posB);
+  b.setWSPos(posA);
+}
+
+function exec() {
+  var nodes = [
+    Scene.getSelectedNode(0), 
+    Scene.getSelectedNode(1),
+  ];
+
+  if (!nodes[0] || !nodes[1]) {
+    MessageBox.information("Select two nodes!");
+    return;
+  }
+
+  beginUndo();
+  _swap(nodes[0], nodes[1]);
+  acceptUndo(qsTr("SwapNode"));
+}
+
+exec();
