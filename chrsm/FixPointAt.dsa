@@ -1,0 +1,60 @@
+// DAZ Studio version 4.21.0.5 filetype DAZ Script
+
+/**
+ * original version: https://www.daz3d.com/forums/discussion/522771/solution-for-restoring-point-at-target-for-node-on-scene-load
+
+ * all credits go to parkourchallenger on Daz3D forums, i just cleaned this up slightly and made it so you don't have to
+ * select a node. anything in the scene that has a point-at will be cleaned up.
+ */
+function fixPointAt(node) {
+  var nodePT = node.getPointAtTarget();
+
+  if (nodePT == null) {
+    return;
+  }
+
+  var curLoc = node.getLocalPos();
+  var curRot = node.getLocalRot();
+
+  // unpoint the node	temporarily
+  node.setPointAtTarget(null);						
+
+  // re-apply transforms			
+  node.setLocalPos(curLoc);
+  node.setLocalRot(curRot);
+
+  // restore node "point at" target			
+  node.setPointAtTarget(nodePT);
+}
+
+function fixPointAtRm(node) {
+  var nodePT = node.getPointAtTarget();
+
+  if (nodePT == null) {
+    return;
+  }
+
+  var curLoc = node.getLocalPos();
+  var curRot = node.getLocalRot();
+
+  // unpoint the node permanently
+  node.setPointAtTarget(null);						
+
+  // re-apply transforms			
+  node.setLocalPos(curLoc);
+  node.setLocalRot(curRot);
+}
+
+function _exec() {
+  beginUndo();
+  Scene.getNodeList().forEach(function(node) {
+      // fixup
+      fixPointAt(node);
+      // remove the constraint completely (save fix)
+      fixPointAtRm(node);
+      });
+  acceptUndo("FixPointAt");
+}
+
+_exec();
+

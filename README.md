@@ -46,3 +46,16 @@ Daz bugs when objects are too far from the world origin (black eyes, haircap
 poke-through, etc).
 
 
+### [FixPointAt.dsa](chrsm/FixPointAt.dsa)
+
+**DISCLAIMER: I DID NOT WRITE THIS. I simply refactored it.**
+**COPYRIGHT LICENSE DOES NOT APPLY TO THIS FILE!**
+**See header in file for full credits and a link to the forum thread.**
+
+Ever had eyes perfectly lined up with the PointAt constraint? Then re-opened
+the same scene later to see that they're not pointed correctly?
+
+FixPointAt fixes point-ats within your scene so that transforms are saved.
+Simply run this before saving your scene.
+
+
