@@ -22,12 +22,17 @@ the content library and look at `Scripts > chrsm`.
 Swaps the position of two nodes. Does not modify anything else.
 
 
-### [Look At Null.dsa](chrsm/Look At Null.dsa)
+### Look At Null.dsa
 
 Creates a new null/empty node and makes the selected nodes point at it with their left & right eyes.
 The new node has the same wspos as the current view.
 
 If selected nodes do not have 'Left Eye' and 'Right Eye', they are skipped!
+
+
+### [LockAllCameras.dsa](chrsm/LockAllCameras.dsa)
+
+Locks "important" properties on all cameras in the scene.
 
 
 ## Third-party Scripts

@@ -1,0 +1,32 @@
+// DAZ Studio version 4.21.0.5 filetype DAZ Script
+
+/*
+ * Small script to lock every camera's various properties I've deemed important.
+ *
+ * Expected usage is to execute this after you've set up a the "base" of a scene.
+ */
+function _exec() {
+  beginUndo();
+
+  Scene.getCameraList().forEach(function(node) {
+    var ctrls = [
+      'XPos', 'YPos', 'ZPos',
+      'XRot', 'YRot', 'ZRot',
+      'DepthOfField',
+      'FocalLength',	'FocalDistance', 'FocalPointScale',
+      'FStop',
+      'FrameWidth',
+      'Perspective',
+      'PointAt',
+    ];
+	
+    for (var i = 0; i < ctrls.length; i++) {
+      print(ctrls[i]);
+      node['get' + ctrls[i] + 'Control']().lock(true);
+    }
+  });
+
+  acceptUndo("Lock All Cameras");
+}
+
+_exec();
